@@ -175,6 +175,12 @@ void lval_println(lval* v) { lval_print(v); putchar('\n'); }
 #define LASSERT(args, cond, err) \
   if (!(cond)) { lval_del(args); return lval_err(err); }
 
+#define LASSERTARGS(args, n_args) \
+  if (args->count != n_args) { \
+    lval_del(args); \
+    return lval_err("Function passed wrong number of arguments!"); \
+  }
+
 lval* lval_eval(lval* v);
 
 lval* builtin_list(lval* a) {
@@ -184,7 +190,7 @@ lval* builtin_list(lval* a) {
 
 lval* builtin_head(lval* a) {
   /* check error conditions */
-  LASSERT(a, a->count == 1, "Function 'head' passed too many arguments!");
+  LASSERTARGS(a, 1);
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'head' passed incorrect types!");
   LASSERT(a, a->cell[0]->count != 0, "Function 'head' passsed {}!");
 
@@ -198,7 +204,7 @@ lval* builtin_head(lval* a) {
 
 lval* builtin_tail(lval* a) {
   /* check error conditions */
-  LASSERT(a, a->count == 1, "Function 'tail' passed too many arguments!");
+  LASSERTARGS(a, 1);
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'tail' passed incorrect types!");
   LASSERT(a, a->cell[0]-> count != 0, "Function 'tail' passsed {}!");
 
@@ -211,7 +217,7 @@ lval* builtin_tail(lval* a) {
 }
 
 lval* builtin_eval(lval* a) {
-  LASSERT(a, a->count == 1, "Function 'eval' passed too many arguments!");
+  LASSERTARGS(a, 1);
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'eval' passed incorrect type!");
 
   lval* x = lval_take(a, 0);
@@ -236,7 +242,7 @@ lval* builtin_join(lval* a) {
 
 lval* builtin_cons(lval* a) {
   /* check error conditions */
-  LASSERT(a, a->count == 2, "Function 'cons' passed wrong number of arguments!");
+  LASSERTARGS(a, 2);
   LASSERT(a, a->cell[0]->type == LVAL_NUM, "Function 'cons' passed incorrect type!");
   LASSERT(a, a->cell[1]->type == LVAL_QEXPR, "Function 'cons' passed incorrect type!");
 
@@ -252,7 +258,7 @@ lval* builtin_cons(lval* a) {
 
 lval* builtin_append(lval* a) {
   /* check error conditions */
-  LASSERT(a, a->count == 2, "Function 'append' passed wrong number of arguments!");
+  LASSERTARGS(a, 2);
   LASSERT(a, a->cell[0]->type == LVAL_NUM, "Function 'append' passed incorrect type!");
   LASSERT(a, a->cell[1]->type == LVAL_QEXPR, "Function 'append' passed incorrect type!");
 
@@ -265,7 +271,7 @@ lval* builtin_append(lval* a) {
 
 lval* builtin_len(lval* a) {
   /* check error conditions */
-  LASSERT(a, a->count == 1, "Function 'len' passed too many arguments!");
+  LASSERTARGS(a, 1);
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'len' passed incorrect types!");
   LASSERT(a, a->cell[0]-> count != 0, "Function 'len' passsed {}!");
 
