@@ -234,6 +234,35 @@ lval* builtin_join(lval* a) {
   return x;
 }
 
+lval* builtin_cons(lval* a) {
+  /* check error conditions */
+  LASSERT(a, a->count == 2, "Function 'cons' passed wrong number of arguments!");
+  LASSERT(a, a->cell[0]->type == LVAL_NUM, "Function 'cons' passed incorrect type!");
+  LASSERT(a, a->cell[1]->type == LVAL_QEXPR, "Function 'cons' passed incorrect type!");
+
+  lval* n = lval_qexpr();
+  n = lval_add(n, lval_pop(a, 0));
+  while (a->count) {
+    n = lval_join(n, lval_pop(a, 0));
+  }
+
+  lval_del(a);
+  return n;
+}
+
+lval* builtin_append(lval* a) {
+  /* check error conditions */
+  LASSERT(a, a->count == 2, "Function 'append' passed wrong number of arguments!");
+  LASSERT(a, a->cell[0]->type == LVAL_NUM, "Function 'append' passed incorrect type!");
+  LASSERT(a, a->cell[1]->type == LVAL_QEXPR, "Function 'append' passed incorrect type!");
+
+  lval* c = lval_pop(a, 0);
+  c = lval_add(lval_pop(a, 0), c);
+
+  lval_del(a);
+  return c;
+}
+
 lval* builtin_len(lval* a) {
   /* check error conditions */
   LASSERT(a, a->count == 1, "Function 'len' passed too many arguments!");
@@ -303,6 +332,8 @@ lval* builtin(lval* a, char* func) {
   if (strcmp("tail", func) == 0) { return builtin_tail(a); }
   if (strcmp("join", func) == 0) { return builtin_join(a); }
   if (strcmp("eval", func) == 0) { return builtin_eval(a); }
+  if (strcmp("cons", func) == 0) { return builtin_cons(a); }
+  if (strcmp("append", func) == 0) { return builtin_append(a); }
   if (strcmp("len", func) == 0)  { return builtin_len(a); }
   if (strstr("+-/*", func)) { return builtin_op(a, func); }
   lval_del(a);
@@ -393,6 +424,7 @@ int main(int argc, char** argv) {
       number : /-?[0-9]+/ ;                    \
       symbol : \"list\" | \"head\" | \"tail\"  \
              | \"join\" | \"eval\" | \"len\"   \
+             | \"append\" | \"cons\"           \
              | '+' | '-' | '*' | '/' ;         \
       sexpr  : '(' <expr>* ')' ;               \
       qexpr  : '{' <expr>* '}' ;               \
